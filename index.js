@@ -527,7 +527,7 @@ function Jasmine2ScreenShotReporter(opts) {
     );
   };
 
-  this.jasmineStarted = function(suiteInfo) {
+  this.jasmineStarted = function(suiteInfo, done) {
     opts.totalSpecsDefined = suiteInfo.totalSpecsDefined;
 
     /* Dirty fix to make sure last screenshot is always linked to the report
@@ -545,6 +545,8 @@ function Jasmine2ScreenShotReporter(opts) {
       opts.browserCaps.platform = capabilities.get('platform');
       opts.browserCaps.javascriptEnabled = capabilities.get('javascriptEnabled');
       opts.browserCaps.cssSelectorsEnabled = capabilities.get('cssSelectorsEnabled');
+
+      if (done) done();
     });
   };
 
@@ -610,7 +612,10 @@ function Jasmine2ScreenShotReporter(opts) {
           metadata       = opts.metadataBuilder(spec, suites, capabilities);
 
           if (metadata) {
-            metadataPath = path.join(opts.dest, file + '.json');
+            metadataFilename = file + '.json';
+            metadataPath = path.join(opts.dest, metadataFilename);
+            spec.filename["meta"] = metadataFilename;
+
             mkdirp(path.dirname(metadataPath), function(err) {
               if(err) {
                 throw new Error('Could not create directory for ' + metadataPath);
@@ -638,7 +643,7 @@ function Jasmine2ScreenShotReporter(opts) {
     });
   };
 
-  this.jasmineDone = function() {
+  this.jasmineDone = function(done) {
     var output = '';
 
     if (runningSuite) {
@@ -683,6 +688,7 @@ function Jasmine2ScreenShotReporter(opts) {
             }
           }
       );
+      if (done) done();
     });
   };
 
